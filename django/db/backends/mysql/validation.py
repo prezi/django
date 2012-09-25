@@ -11,13 +11,10 @@ class DatabaseValidation(BaseDatabaseValidation):
           characters if they have a unique index on them.
         """
         from django.db import models
-        db_version = self.connection.get_server_version()
         varchar_fields = (models.CharField, models.CommaSeparatedIntegerField,
                 models.SlugField)
         if isinstance(f, varchar_fields) and f.max_length > 255:
-            if db_version < (5, 0, 3):
-                msg = '"%(name)s": %(cls)s cannot have a "max_length" greater than 255 when you are using a version of MySQL prior to 5.0.3 (you are using %(version)s).'
-            elif f.unique == True:
+            if f.unique == True:
                 msg = '"%(name)s": %(cls)s cannot have a "max_length" greater than 255 when using "unique=True".'
             else:
                 msg = None
