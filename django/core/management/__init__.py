@@ -35,28 +35,13 @@ def find_management_module(app_name):
 
     Raises ImportError if the management module cannot be found for any reason.
     """
-    parts = app_name.split('.')
-    parts.append('management')
-    parts.reverse()
-    part = parts.pop()
-    path = None
 
-    # When using manage.py, the project module is added to the path,
-    # loaded, then removed from the path. This means that
-    # testproject.testapp.models can be loaded in future, even if
-    # testproject isn't in the path. When looking for the management
-    # module, we need look for the case where the project name is part
-    # of the app_name but the project directory itself isn't on the path.
-    try:
-        f, path, descr = imp.find_module(part,path)
-    except ImportError,e:
-        if os.path.basename(os.getcwd()) != part:
-            raise e
+    path = os.path.join(__import__(app_name, fromlist="management").__path__[0], "management")
+    if not os.path.exists(path):
+        raise ImportError("No management commands for %s" % app_name)
 
-    while parts:
-        part = parts.pop()
-        f, path, descr = imp.find_module(part, path and [path] or None)
     return path
+
 
 def load_command_class(app_name, name):
     """
