@@ -140,6 +140,10 @@ def translation(language):
 
         res = _translation(globalpath)
 
+        # See: https://code.djangoproject.com/ticket/18192
+        if res is None:
+            return gettext_module.NullTranslations()
+
         # We want to ensure that, for example,  "en-gb" and "en-us" don't share
         # the same translation object (thus, merging en-us with a local update
         # doesn't affect en-gb), even though they will both use the core "en"
